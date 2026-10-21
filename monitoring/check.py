@@ -9,6 +9,17 @@ from datetime import datetime, timezone
 from pathlib import Path
 import subprocess
 from http_probe import request as http_request
+from html.parser import HTMLParser
+
+
+class PageLanguage(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.language = ""
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "html":
+            self.language = dict(attrs).get("lang", "").lower()
 
 URL = "https://www.premierconsumer.org/"
 MARKER = "<!-- premier-consumer-uptime:v1 -->"
@@ -25,8 +36,14 @@ def probe(site=None):
         if not final_url.startswith("https://"):
             raise ValueError("Redirected to an insecure HTTP address")
         keyword = site.get("keyword")
-        if keyword and keyword.casefold() not in body.decode("utf-8", errors="replace").casefold():
+        html = body.decode("utf-8", errors="replace")
+        if keyword and keyword.casefold() not in html.casefold():
             raise ValueError(f"Page did not contain the expected keyword: {keyword}")
+        if site.get("language"):
+            page = PageLanguage()
+            page.feed(html)
+            if page.language.split("-")[0] != site["language"]:
+                raise ValueError(f"Expected {site['language']} page language; received {page.language or 'no language declaration'}")
         return {"up": True, "detail": f"HTTP {status}; HTTPS verified" + ("; keyword matched" if keyword else ""), "seconds": seconds}
     except (urllib.error.URLError, OSError, ValueError, subprocess.TimeoutExpired) as error:
         return {"up": False, "detail": str(error)[:300], "seconds": round(time.monotonic() - started, 3)}
@@ -99,18 +116,36 @@ def reconcile(repo, result, site=None):
 
 
 def main():
+    from group_alerts import reconcile_group
+    from report_state import load, save, performance, append_sample, incident_history
     sites = json.loads(Path(__file__).with_name("sites.json").read_text())
+    repo = os.environ["GITHUB_REPOSITORY"]
+    data, sha = load(repo, "docs/monitor-data.json")
     with ThreadPoolExecutor(max_workers=5) as pool:
         results = list(pool.map(check, sites))
     with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
         summary.write("## Premier Consumer website checks\n\n")
+        failures = []
         for site, result in zip(sites, results):
             print(json.dumps({"site": site["id"], **result}))
-            message = reconcile(os.environ["GITHUB_REPOSITORY"], result, site)
+            message = "Healthy" if result["up"] else result["detail"]
+            if not result["up"]:
+                failures.append({**site, "detail": result["detail"]})
             summary.write(f"### {site['name']}: {'UP' if result['up'] else 'DOWN'}\n\n"
                           f"{message}\n\nChecked: {result['checked_at']} (UTC)\n\n"
                           f"Duration: {result['seconds']} s · Attempts: {result['attempts']}\n\n"
                           f"[Website]({site['url']})\n\n")
+        summary.write("\n" + reconcile_group(repo, "availability", failures) + "\n")
+        performance_state, slow = performance(data.get("performance", {}), sites, results)
+        summary.write("\n" + reconcile_group(repo, "slow pages", slow) + "\n")
+    stamp = datetime.now(timezone.utc).isoformat()
+    run_id = os.environ["GITHUB_RUN_ID"]
+    record = {"generated_at": stamp, "cadence_seconds": 300,
+              "run_url": f"https://github.com/{repo}/actions/runs/{run_id}",
+              "sites": sites, "ids": [s["id"] for s in sites], "checks": results,
+              "history": append_sample(data, sites, results, run_id, stamp),
+              "performance": performance_state, "incidents": incident_history(repo)}
+    save(repo, "docs/monitor-data.json", record, sha)
 
 
 if __name__ == "__main__":

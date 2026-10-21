@@ -1,0 +1,36 @@
+name: Forms and buttons
+
+on:
+  schedule:
+    - cron: '41 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'monitoring/browser_checks.py'
+      - '.github/workflows/browser-checks.yml'
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: premier-browser-checks
+  cancel-in-progress: false
+
+jobs:
+  browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install browser test tools
+        run: |
+          python3 -m venv /tmp/premier-browser
+          /tmp/premier-browser/bin/pip install playwright==1.64.0
+          /tmp/premier-browser/bin/python -m playwright install --with-deps chromium --only-shell
+      - name: Check visible controls without submitting forms
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BROWSER_ALERTS: 'false'
+        run: /tmp/premier-browser/bin/python monitoring/browser_checks.py

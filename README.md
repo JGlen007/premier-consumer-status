@@ -25,7 +25,7 @@ Five-minute HTTPS availability checks for Premier Consumer, powered by GitHub Ac
 | Bankruptcy subsite | https://bankruptcy.premierconsumer.org/ | Status only |
 | Tax subsite | https://tax.premierconsumer.org/ | Status only |
 
-The checks retry failures three times, ten seconds apart. A confirmed failure opens one incident issue per address. Recovery closes that incident. Each Actions run records response duration and a check summary. Check issue history as well as workflow status: a green run means the monitor executed successfully, and can still contain a website outage.
+The checks retry failures three times, ten seconds apart. Confirmed failures are grouped into one incident per category, listing all affected pages. Recovery closes that incident. Each Actions run records response duration and a check summary. Check issue history as well as workflow status: a green run means the monitor executed successfully, and can still contain a website outage.
 
 ## Notifications
 
@@ -41,7 +41,7 @@ Outage and recovery emails were confirmed delivered during a simulated notificat
 
 - Each request uses a 15-second connection/socket timeout. IPv4 is attempted first; IPv6 is tried when IPv4 cannot establish a connection and time remains in the connection budget. This is a socket timeout rather than a strict deadline for an entire redirect chain or slowly streaming response.
 - HTTPS certificate verification stays enabled. Redirects are followed over HTTPS, and final 2xx/3xx statuses are healthy if any required keyword is also present.
-- Slow-response threshold alerts remain disabled. Requests that exceed the timeout fail the availability check.
+- Slow-page alerts trigger after three consecutive requests above five seconds and resolve after two at four seconds or less. Requests that exceed the timeout fail the availability check.
 - The five-minute GitHub schedule remains. GitHub's standard hosted runners do not guarantee a North America monitoring location.
 
 ## Certificate and domain expiry reminders
@@ -58,8 +58,18 @@ Domain dates come from the authoritative registry's RDAP service, located throug
 
 Standard GitHub-hosted Actions runners in this public repository do not consume paid private-repository minutes. GitHub scheduling may be delayed or dropped. Public scheduled workflows can be disabled after 60 days without repository activity; review the Actions page regularly and keep the configuration maintained. This is not an immediate-alert or multi-region monitoring service.
 
-The monitor validates the public response, not forms, payments, WordPress admin, all site pages, or office connectivity. An invalid TLS certificate fails the check. Certificate and domain expiry reminders run daily. A cached page may conceal backend problems. Logs follow the repository's Actions retention setting; persistent incident issues record outages. This version does not calculate uptime percentages or host a separate status website.
+The monitor validates public responses and runs read-only browser checks of visible lead form controls. It does not submit forms, create leads, verify payments, log into WordPress, or monitor office connectivity. An invalid TLS certificate fails the check. Certificate and domain expiry reminders run daily. A cached page may conceal backend problems. Logs follow the repository's Actions retention setting; persistent incident issues record outages. The dashboard shows recorded success percentages, sampling coverage, response history and detected incident duration. Gaps remain unknown rather than being counted as uptime.
 
 Edit `monitoring/sites.json` to change checks. Use **Actions → Premier Consumer uptime → Run workflow** to run immediately. Disable that workflow to stop monitoring.
 
 Local validation: `python3 -m unittest discover -s monitoring -v`.
+
+## Enhanced monitoring
+
+- Spanish and English pages must declare the expected language in their HTML.
+- Forms and buttons are checked hourly on the main, free analysis, debt management, contact, Spanish analysis, tax and bankruptcy pages. Browser alerting is enabled only after live validation. No fields are filled and no forms are submitted.
+- Availability, slow-page and form incidents are grouped, with email updates when the affected page set changes and a recovery email when the category recovers.
+- An independent hourly ChatGPT health watch checks for missing successful monitor jobs and alerts if checks are over 30 minutes old. This is not a one-minute watchdog.
+- The public dashboard is in `docs/index.html`. Enable GitHub Pages from main /docs. It reads the latest public data directly from the repository. Data becomes stale after 15 minutes; browser results after two hours.
+- Public sample history is retained for up to 2,016 runs (about seven days at the configured cadence). Observed success percentages are not continuous uptime guarantees.
+- Recording real check results creates repository activity and preserves an auditable history. Only website health data is stored, never submitted form values or customer records.

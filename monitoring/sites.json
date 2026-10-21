@@ -3,100 +3,118 @@
     "id": "root",
     "name": "English: Home",
     "url": "https://premierconsumer.org/",
-    "keyword": "Consent not required to enroll"
+    "keyword": "Consent not required to enroll",
+    "language": "en"
   },
   {
     "id": "free-analysis",
     "name": "English: Free counseling analysis",
     "url": "https://premierconsumer.org/free-credit-counseling-analysis/",
-    "keyword": "Get My Free Analysis"
+    "keyword": "Get My Free Analysis",
+    "language": "en"
   },
   {
     "id": "free",
     "name": "English: Free",
     "url": "https://premierconsumer.org/free/",
-    "keyword": "Get My Free Analysis"
+    "keyword": "Get My Free Analysis",
+    "language": "en"
   },
   {
     "id": "free-credit",
     "name": "English: Free credit",
     "url": "https://premierconsumer.org/free-credit/",
-    "keyword": "Get My Free Analysis"
+    "keyword": "Get My Free Analysis",
+    "language": "en"
   },
   {
     "id": "debt-management",
     "name": "English: Debt management",
     "url": "https://premierconsumer.org/debt-management/",
-    "keyword": "Benefits of Our Debt Management Program"
+    "keyword": "Benefits of Our Debt Management Program",
+    "language": "en"
   },
   {
     "id": "bankruptcy-education",
     "name": "English: Bankruptcy counseling",
     "url": "https://premierconsumer.org/bankruptcy-counseling-and-education/",
-    "keyword": "Pre-Bankruptcy Course"
+    "keyword": "Pre-Bankruptcy Course",
+    "language": "en"
   },
   {
     "id": "tax-preparation",
     "name": "English: Tax preparation",
     "url": "https://premierconsumer.org/tax-preparation/",
-    "keyword": "Get My Tax Estimate"
+    "keyword": "Get My Tax Estimate",
+    "language": "en"
   },
   {
     "id": "identity-protection",
     "name": "English: Identity protection",
     "url": "https://premierconsumer.org/id-protection-program/",
-    "keyword": "Identity Restoration"
+    "keyword": "Identity Restoration",
+    "language": "en"
   },
   {
     "id": "contact",
     "name": "English: Contact",
     "url": "https://premierconsumer.org/contact-us/",
-    "keyword": "Corporate Relations"
+    "keyword": "Corporate Relations",
+    "language": "en"
   },
   {
     "id": "es-debt-consolidation",
     "name": "Spanish: Debt consolidation",
     "url": "https://premierconsumer.org/consolidacion-de-deudas/?lang=es",
-    "keyword": "Beneficios de nuestro programa"
+    "keyword": "Beneficios de nuestro programa",
+    "language": "es"
   },
   {
     "id": "es-home",
     "name": "Spanish: Home",
-    "url": "https://premierconsumer.org/?lang=es"
+    "url": "https://premierconsumer.org/?lang=es",
+    "language": "es"
   },
   {
     "id": "es-analysis",
     "name": "Spanish: Free analysis",
-    "url": "https://premierconsumer.org/analisis-gratis/?lang=es"
+    "url": "https://premierconsumer.org/analisis-gratis/?lang=es",
+    "language": "es"
   },
   {
     "id": "es-bankruptcy",
     "name": "Spanish: Bankruptcy counseling",
-    "url": "https://premierconsumer.org/asesoria-y-educacion-sobre-bancarrota/?lang=es"
+    "url": "https://premierconsumer.org/asesoria-y-educacion-sobre-bancarrota/?lang=es",
+    "language": "es"
   },
   {
     "id": "es-tax",
     "name": "Spanish: Tax preparation",
-    "url": "https://premierconsumer.org/preparacion-de-impuestos/?lang=es"
+    "url": "https://premierconsumer.org/preparacion-de-impuestos/?lang=es",
+    "language": "es"
   },
   {
     "id": "es-identity",
     "name": "Spanish: Identity protection",
-    "url": "https://premierconsumer.org/programa-de-proteccion-de-identidad/?lang=es"
+    "url": "https://premierconsumer.org/programa-de-proteccion-de-identidad/?lang=es",
+    "language": "es"
   },
   {
     "id": "es-contact",
     "name": "Spanish: Contact",
-    "url": "https://premierconsumer.org/contacto/?lang=es"
+    "url": "https://premierconsumer.org/contacto/?lang=es",
+    "language": "es"
   },
   {
     "id": "bankruptcy",
     "name": "Bankruptcy subsite",
-    "url": "https://bankruptcy.premierconsumer.org/"
+    "url": "https://bankruptcy.premierconsumer.org/",
+    "language": "en"
   },
   {
     "id": "tax",
     "name": "Tax subsite",
-    "url": "https://tax.premierconsumer.org/"
+    "url": "https://tax.premierconsumer.org/",
+    "language": "en"
   }
 ]
