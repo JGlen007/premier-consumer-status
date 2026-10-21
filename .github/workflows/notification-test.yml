@@ -1,0 +1,56 @@
+name: Test outage notifications
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/notification-test.yml'
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  notification-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Simulate outage and recovery using the normal incident handler
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import os, sys, time
+          from datetime import datetime, timezone
+          sys.path.insert(0, "monitoring")
+          import check
+          repo = os.environ["GITHUB_REPOSITORY"]
+          site = {
+              "id": "notification-test-" + os.environ["GITHUB_RUN_ID"],
+              "name": "[TEST ONLY] Notification delivery - no real website outage",
+              "url": check.URL,
+          }
+          result = {
+              "up": False, "detail": "SIMULATED failure for an authorized notification test. Websites were not changed.",
+              "seconds": 0, "attempts": 3, "checked_at": datetime.now(timezone.utc).isoformat(),
+          }
+          issue = None
+          try:
+              print(check.reconcile(repo, result, site))
+              issues = check.open_incidents(repo, site)
+              assert len(issues) == 1, "Expected one test incident"
+              issue = issues[0]
+              print("Test incident: " + issue["html_url"])
+              print(check.reconcile(repo, result, site))
+              assert len(check.open_incidents(repo, site)) == 1, "Duplicate incident detected"
+              time.sleep(20)
+          finally:
+              print(check.reconcile(repo, {**result, "up": True, "detail": "SIMULATED recovery. Test finished; no production outage occurred.", "checked_at": datetime.now(timezone.utc).isoformat()}, site))
+          assert not check.open_incidents(repo, site), "Test incident should be closed"
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
+              f.write("## Notification test completed\n\nSimulated outage created one issue, duplicate detection passed, and recovery closed the issue. No websites were changed.\n\n")
+              if issue:
+                  f.write("[Test incident](" + issue["html_url"] + ")\n")
+              f.write("\nConfirm receipt in GitHub, email, or mobile notifications; successful execution alone does not prove delivery.\n")
+          PY
