@@ -2,13 +2,14 @@ name: Test outage notifications
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - '.github/workflows/notification-test.yml'
 
 permissions:
   contents: read
   issues: write
+
+concurrency:
+  group: notification-delivery-test
+  cancel-in-progress: false
 
 jobs:
   notification-test:
@@ -35,10 +36,17 @@ jobs:
               "up": False, "detail": "SIMULATED failure for an authorized notification test. Websites were not changed.",
               "seconds": 0, "attempts": 3, "checked_at": datetime.now(timezone.utc).isoformat(),
           }
+          def wait_for_incidents(expected):
+              for attempt in range(10):
+                  rows = check.open_incidents(repo, site)
+                  if len(rows) == expected:
+                      return rows
+                  time.sleep(2)
+              raise AssertionError("Test incident state did not become visible")
           issue = None
           try:
               print(check.reconcile(repo, result, site))
-              issues = check.open_incidents(repo, site)
+              issues = wait_for_incidents(1)
               assert len(issues) == 1, "Expected one test incident"
               issue = issues[0]
               print("Test incident: " + issue["html_url"])
@@ -47,7 +55,7 @@ jobs:
               time.sleep(20)
           finally:
               print(check.reconcile(repo, {**result, "up": True, "detail": "SIMULATED recovery. Test finished; no production outage occurred.", "checked_at": datetime.now(timezone.utc).isoformat()}, site))
-          assert not check.open_incidents(repo, site), "Test incident should be closed"
+          wait_for_incidents(0)
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
               f.write("## Notification test completed\n\nSimulated outage created one issue, duplicate detection passed, and recovery closed the issue. No websites were changed.\n\n")
               if issue:
