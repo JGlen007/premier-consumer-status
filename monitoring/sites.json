@@ -1,7 +1,102 @@
 [
-  {"id": "homepage", "name": "PremierConsumer.org", "url": "https://www.premierconsumer.org/", "keyword": "Premier"},
-  {"id": "root", "name": "PremierConsumer.org (without www)", "url": "https://premierconsumer.org/"},
-  {"id": "bankruptcy", "name": "Bankruptcy website", "url": "https://bankruptcy.premierconsumer.org/"},
-  {"id": "tax", "name": "Tax website", "url": "https://tax.premierconsumer.org/"},
-  {"id": "spanish", "name": "Libre de deudas page", "url": "https://premierconsumer.org/librededeudas/"}
+  {
+    "id": "root",
+    "name": "English: Home",
+    "url": "https://premierconsumer.org/",
+    "keyword": "Consent not required to enroll"
+  },
+  {
+    "id": "free-analysis",
+    "name": "English: Free counseling analysis",
+    "url": "https://premierconsumer.org/free-credit-counseling-analysis/",
+    "keyword": "Get My Free Analysis"
+  },
+  {
+    "id": "free",
+    "name": "English: Free",
+    "url": "https://premierconsumer.org/free/",
+    "keyword": "Get My Free Analysis"
+  },
+  {
+    "id": "free-credit",
+    "name": "English: Free credit",
+    "url": "https://premierconsumer.org/free-credit/",
+    "keyword": "Get My Free Analysis"
+  },
+  {
+    "id": "debt-management",
+    "name": "English: Debt management",
+    "url": "https://premierconsumer.org/debt-management/",
+    "keyword": "Benefits of Our Debt Management Program"
+  },
+  {
+    "id": "bankruptcy-education",
+    "name": "English: Bankruptcy counseling",
+    "url": "https://premierconsumer.org/bankruptcy-counseling-and-education/",
+    "keyword": "Pre-Bankruptcy Course"
+  },
+  {
+    "id": "tax-preparation",
+    "name": "English: Tax preparation",
+    "url": "https://premierconsumer.org/tax-preparation/",
+    "keyword": "Get My Tax Estimate"
+  },
+  {
+    "id": "identity-protection",
+    "name": "English: Identity protection",
+    "url": "https://premierconsumer.org/id-protection-program/",
+    "keyword": "Identity Restoration"
+  },
+  {
+    "id": "contact",
+    "name": "English: Contact",
+    "url": "https://premierconsumer.org/contact-us/",
+    "keyword": "Corporate Relations"
+  },
+  {
+    "id": "es-debt-consolidation",
+    "name": "Spanish: Debt consolidation",
+    "url": "https://premierconsumer.org/consolidacion-de-deudas/?lang=es",
+    "keyword": "Beneficios de nuestro programa"
+  },
+  {
+    "id": "es-home",
+    "name": "Spanish: Home",
+    "url": "https://premierconsumer.org/?lang=es"
+  },
+  {
+    "id": "es-analysis",
+    "name": "Spanish: Free analysis",
+    "url": "https://premierconsumer.org/analisis-gratis/?lang=es"
+  },
+  {
+    "id": "es-bankruptcy",
+    "name": "Spanish: Bankruptcy counseling",
+    "url": "https://premierconsumer.org/asesoria-y-educacion-sobre-bancarrota/?lang=es"
+  },
+  {
+    "id": "es-tax",
+    "name": "Spanish: Tax preparation",
+    "url": "https://premierconsumer.org/preparacion-de-impuestos/?lang=es"
+  },
+  {
+    "id": "es-identity",
+    "name": "Spanish: Identity protection",
+    "url": "https://premierconsumer.org/programa-de-proteccion-de-identidad/?lang=es"
+  },
+  {
+    "id": "es-contact",
+    "name": "Spanish: Contact",
+    "url": "https://premierconsumer.org/contacto/?lang=es"
+  },
+  {
+    "id": "bankruptcy",
+    "name": "Bankruptcy subsite",
+    "url": "https://bankruptcy.premierconsumer.org/"
+  },
+  {
+    "id": "tax",
+    "name": "Tax subsite",
+    "url": "https://tax.premierconsumer.org/"
+  }
 ]
