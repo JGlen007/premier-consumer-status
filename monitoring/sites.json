@@ -1,0 +1,7 @@
+[
+  {"id": "homepage", "name": "PremierConsumer.org", "url": "https://www.premierconsumer.org/", "keyword": "Premier"},
+  {"id": "root", "name": "PremierConsumer.org (without www)", "url": "https://premierconsumer.org/"},
+  {"id": "bankruptcy", "name": "Bankruptcy website", "url": "https://bankruptcy.premierconsumer.org/"},
+  {"id": "tax", "name": "Tax website", "url": "https://tax.premierconsumer.org/"},
+  {"id": "spanish", "name": "Libre de deudas page", "url": "https://premierconsumer.org/librededeudas/"}
+]

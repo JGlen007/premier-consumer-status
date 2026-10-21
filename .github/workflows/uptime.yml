@@ -1,0 +1,44 @@
+name: Premier Consumer uptime
+
+on:
+  schedule:
+    - cron: '2-59/5 * * * *'
+  workflow_dispatch:
+  push:
+    paths:
+      - 'monitoring/**'
+      - '.github/workflows/uptime.yml'
+  pull_request:
+    paths:
+      - 'monitoring/**'
+      - '.github/workflows/uptime.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: premier-uptime-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m unittest discover -s monitoring -v
+
+  monitor:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check websites and record outages or recoveries
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 monitoring/check.py
