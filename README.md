@@ -39,7 +39,7 @@ Outage and recovery emails were confirmed delivered during a simulated notificat
 
 ## Settings matched to the previous monitor
 
-- Each request has a 15-second total transfer budget, including redirects and any IPv6 fallback. IPv4 is attempted first; IPv6 is tried when IPv4 cannot establish a connection and time remains.
+- Each request uses a 15-second connection/socket timeout. IPv4 is attempted first; IPv6 is tried when IPv4 cannot establish a connection and time remains in the connection budget. This is a socket timeout rather than a strict deadline for an entire redirect chain or slowly streaming response.
 - HTTPS certificate verification stays enabled. Redirects are followed over HTTPS, and final 2xx/3xx statuses are healthy if any required keyword is also present.
 - Slow-response threshold alerts remain disabled. Requests that exceed the timeout fail the availability check.
 - The five-minute GitHub schedule remains. GitHub's standard hosted runners do not guarantee a North America monitoring location.

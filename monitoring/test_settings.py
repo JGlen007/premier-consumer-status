@@ -1,7 +1,6 @@
-import subprocess
+import socket
 import unittest
-from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import check
 import http_probe
@@ -30,32 +29,30 @@ class HTTPSettingsTests(unittest.TestCase):
             self.assertFalse(check.probe()["up"])
 
     def test_ipv4_preferred_then_ipv6_on_connection_failure(self):
-        commands = []
-        def execute(command, **kwargs):
-            commands.append(command)
-            if "--ipv4" in command:
-                return subprocess.CompletedProcess(command, 7, b"", b"connect failed")
-            Path(command[command.index("--output") + 1]).write_bytes(b"page")
-            return subprocess.CompletedProcess(command, 0, b"200\nhttps://example.com", b"")
-        with patch.object(http_probe.subprocess, "run", side_effect=execute):
-            status, _, body, _ = http_probe.request("https://example.com")
-        self.assertEqual((status, body), (200, b"page"))
-        self.assertIn("--ipv4", commands[0])
-        self.assertIn("--ipv6", commands[1])
-        self.assertIn("--location", commands[0])
-        self.assertLessEqual(float(commands[0][commands[0].index("--max-time") + 1]), 15)
+        addresses = [(socket.AF_INET6, socket.SOCK_STREAM, 6, "", ("::1", 443)),
+                     (socket.AF_INET, socket.SOCK_STREAM, 6, "", ("127.0.0.1", 443))]
+        ipv4, ipv6 = MagicMock(), MagicMock()
+        ipv4.connect.side_effect = OSError("IPv4 unavailable")
+        with patch.object(http_probe.socket, "getaddrinfo", return_value=addresses), patch.object(http_probe.socket, "socket", side_effect=[ipv4, ipv6]):
+            connected = http_probe.connect_ipv4_first(("example.com", 443))
+        self.assertIs(connected, ipv6)
+        ipv4.connect.assert_called_once_with(("127.0.0.1", 443))
+        ipv4.close.assert_called_once()
+        ipv6.connect.assert_called_once_with(("::1", 443))
 
-    def test_no_ipv6_fallback_for_bad_certificate(self):
-        with patch.object(http_probe.subprocess, "run", return_value=subprocess.CompletedProcess([], 60, b"", b"SSL certificate error")) as run:
-            with self.assertRaises(OSError):
-                http_probe.request("https://example.com")
-        self.assertEqual(run.call_count, 1)
+    def test_insecure_redirect_is_rejected(self):
+        with self.assertRaises(ValueError):
+            http_probe.HTTPSRedirectHandler().redirect_request(None, None, 302, "", {}, "http://example.com")
 
     def test_fallback_cannot_restart_fifteen_second_budget(self):
-        with patch.object(http_probe.time, "monotonic", side_effect=[0, 0, 15.1]), patch.object(http_probe.subprocess, "run", return_value=subprocess.CompletedProcess([], 28, b"", b"timeout")) as run:
+        addresses = [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("127.0.0.1", 443)),
+                     (socket.AF_INET6, socket.SOCK_STREAM, 6, "", ("::1", 443))]
+        sock = MagicMock()
+        sock.connect.side_effect = OSError("timeout")
+        with patch.object(http_probe.time, "monotonic", side_effect=[0, 0, 15.1]), patch.object(http_probe.socket, "getaddrinfo", return_value=addresses), patch.object(http_probe.socket, "socket", return_value=sock) as create:
             with self.assertRaises(TimeoutError):
-                http_probe.request("https://example.com")
-        self.assertEqual(run.call_count, 1)
+                http_probe.connect_ipv4_first(("example.com", 443))
+        self.assertEqual(create.call_count, 1)
 
 
 if __name__ == "__main__":
