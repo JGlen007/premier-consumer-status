@@ -7,6 +7,8 @@ import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
+import subprocess
+from http_probe import request as http_request
 
 URL = "https://www.premierconsumer.org/"
 MARKER = "<!-- premier-consumer-uptime:v1 -->"
@@ -16,19 +18,17 @@ DEFAULT_SITE = {"id": "homepage", "name": "PremierConsumer.org", "url": URL, "ke
 def probe(site=None):
     site = site or DEFAULT_SITE
     started = time.monotonic()
-    request = urllib.request.Request(site["url"], headers={"User-Agent": "PremierConsumer-Uptime/1.0"})
     try:
-        with urllib.request.urlopen(request, timeout=20) as response:
-            body = response.read(2_000_000).lower()
-            if response.status != 200:
-                raise ValueError(f"HTTP {response.status}")
-            if not response.url.startswith("https://"):
-                raise ValueError("Redirected to an insecure HTTP address")
-            keyword = site.get("keyword")
-            if keyword and keyword.lower().encode() not in body:
-                raise ValueError(f"Page did not contain the expected keyword: {keyword}")
-            return {"up": True, "detail": "HTTP 200; HTTPS verified" + ("; keyword matched" if keyword else ""), "seconds": round(time.monotonic() - started, 3)}
-    except (urllib.error.URLError, OSError, ValueError) as error:
+        status, final_url, body, seconds = http_request(site["url"], timeout=15)
+        if not 200 <= status < 400:
+            raise ValueError(f"HTTP {status}")
+        if not final_url.startswith("https://"):
+            raise ValueError("Redirected to an insecure HTTP address")
+        keyword = site.get("keyword")
+        if keyword and keyword.casefold() not in body.decode("utf-8", errors="replace").casefold():
+            raise ValueError(f"Page did not contain the expected keyword: {keyword}")
+        return {"up": True, "detail": f"HTTP {status}; HTTPS verified" + ("; keyword matched" if keyword else ""), "seconds": seconds}
+    except (urllib.error.URLError, OSError, ValueError, subprocess.TimeoutExpired) as error:
         return {"up": False, "detail": str(error)[:300], "seconds": round(time.monotonic() - started, 3)}
 
 

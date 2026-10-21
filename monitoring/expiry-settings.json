@@ -1,0 +1,10 @@
+{
+  "thresholds_days": [30, 14, 7, 0],
+  "certificate_hosts": [
+    "premierconsumer.org",
+    "www.premierconsumer.org",
+    "bankruptcy.premierconsumer.org",
+    "tax.premierconsumer.org"
+  ],
+  "domains": ["premierconsumer.org"]
+}

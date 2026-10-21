@@ -1,0 +1,32 @@
+name: Certificate and domain expiry
+
+on:
+  schedule:
+    - cron: '17 13 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'monitoring/expiry.py'
+      - 'monitoring/http_probe.py'
+      - 'monitoring/expiry-settings.json'
+      - '.github/workflows/expiry.yml'
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: premier-expiry
+  cancel-in-progress: false
+
+jobs:
+  expiry:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check certificate and domain expiration
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 monitoring/expiry.py
